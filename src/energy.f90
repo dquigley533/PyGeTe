@@ -1156,7 +1156,7 @@ contains
              end if
 
           end do
-          if (nn(imol) > maxneigh) stop 'Error in compute_neighbour _list : maximum neighbours exceeded!'
+          if (nn(imol) == maxneigh) stop 'Error in compute_neighbour _list : maximum neighbours exceeded!'
        end do
        
        !write(0,'("Molecule ",I5," has ",I5," neighbours")')imol,nn(imol,ils)
@@ -1229,7 +1229,7 @@ contains
              jn(ni,imol) = jmol   ! jmol is a neighbour of imol
           end if
              
-          if (nn(imol) > maxneigh) stop 'Error in compute_neighbour _list : maximum neighbours exceeded!'
+          if (nn(imol) == maxneigh) stop 'Error in compute_neighbour _list : maximum neighbours exceeded!'
 
        end do
        
