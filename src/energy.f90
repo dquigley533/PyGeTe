@@ -146,25 +146,48 @@ contains
     if (initialised) stop 'Error in energy_init: already initialised!'
 
     ! Populate 3-body interaction parameters (to move to reshaped parameter array)
+!!$    zipd(0,0,0) = 25.61910_dp   !  Ge - Ge - Ge
+!!$    zipd(0,0,1) = 28.18170_dp   !  Ge - Ge - Te
+!!$    zipd(1,0,0) = 28.18170_dp   !  Te - Ge - Ge
+!!$    zipd(1,0,1) = 28.07053_dp   !  Te - Ge - Te
+!!$
+!!$    zipd(0,1,0) = 27.86151_dp   !  Ge - Te - Ge
+!!$    zipd(0,1,1) = 27.88612_dp   !  Ge - Te - Te
+!!$    zipd(1,1,0) = 27.88612_dp   !  Te - Te - Ge
+!!$    zipd(1,1,1) = 35.75317_dp   !  Te - Te - Te
+!!$
+!!$    ziph(0,0,0) = -0.44982_dp   !  Ge - Ge - Ge
+!!$    ziph(0,0,1) = -0.35175_dp   !  Ge - Ge - Te
+!!$    ziph(1,0,0) = -0.35175_dp   !  Te - Ge - Ge
+!!$    ziph(1,0,1) = -0.34448_dp   !  Te - Ge - Te
+!!$       
+!!$    ziph(0,1,0) = -0.33105_dp   !  Ge - Te - Ge
+!!$    ziph(0,1,1) = -0.37131_dp   !  Ge - Te - Te
+!!$    ziph(1,1,0) = -0.37131_dp   !  Te - Te - Ge
+!!$    ziph(1,1,1) = -0.46333_dp   !  Te - Te - Te
+
+
+    ! Corrected ordering Sept 2018
     zipd(0,0,0) = 25.61910_dp   !  Ge - Ge - Ge
     zipd(0,0,1) = 28.18170_dp   !  Ge - Ge - Te
-    zipd(1,0,0) = 28.18170_dp   !  Te - Ge - Ge
-    zipd(1,0,1) = 28.07053_dp   !  Te - Ge - Te
+    zipd(0,1,0) = 28.18170_dp   !  Ge - Te - Ge
+    zipd(0,1,1) = 28.07053_dp   !  Ge - Te - Te
 
-    zipd(0,1,0) = 27.86151_dp   !  Ge - Te - Ge
-    zipd(0,1,1) = 27.88612_dp   !  Ge - Te - Te
+    zipd(1,0,0) = 27.86151_dp   !  Te - Ge - Ge
+    zipd(1,0,1) = 27.88612_dp   !  Te - Ge - Te
     zipd(1,1,0) = 27.88612_dp   !  Te - Te - Ge
     zipd(1,1,1) = 35.75317_dp   !  Te - Te - Te
 
     ziph(0,0,0) = -0.44982_dp   !  Ge - Ge - Ge
     ziph(0,0,1) = -0.35175_dp   !  Ge - Ge - Te
-    ziph(1,0,0) = -0.35175_dp   !  Te - Ge - Ge
-    ziph(1,0,1) = -0.34448_dp   !  Te - Ge - Te
+    ziph(0,1,0) = -0.35175_dp   !  Ge - Te - Ge
+    ziph(0,1,1) = -0.34448_dp   !  Ge - Te - Te
        
-    ziph(0,1,0) = -0.33105_dp   !  Ge - Te - Ge
-    ziph(0,1,1) = -0.37131_dp   !  Ge - Te - Te
+    ziph(1,0,0) = -0.33105_dp   !  Te - Ge - Ge
+    ziph(1,0,1) = -0.37131_dp   !  Te - Ge - Te
     ziph(1,1,0) = -0.37131_dp   !  Te - Te - Ge
     ziph(1,1,1) = -0.46333_dp   !  Te - Te - Te
+
 
     invzipd(:,:,:) = 1.0_dp/zipd(:,:,:)
 
