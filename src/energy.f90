@@ -18,6 +18,7 @@ module energy
   implicit None                                 ! Impose strong typing
 
   integer,parameter :: dp = c_double            ! C compatible double precision
+  integer,parameter :: it = c_int               ! C compatible int
 
   Private                                       ! Everything is private
   !---------------------------------------------------------------------------!
@@ -43,7 +44,7 @@ module energy
   logical,save :: initialised = .false.              
 
   ! Number of atoms in the lattice and number of lattices (for consistency checking)
-  integer,bind(c),save :: natoms = -1
+  integer(kind=it),bind(c),save :: natoms = -1
   
   ! Current energy due to the model Hamiltonian
   real(kind=dp),bind(c),save :: model_energy = 0.0_dp
@@ -141,7 +142,7 @@ contains
     integer :: im,jm,km,iat    ! loop counters
     integer :: ierr ! error flag
 
-    real(kind=dp) :: s3,density
+    real(kind=dp) :: density
     
     if (initialised) stop 'Error in energy_init: already initialised!'
 
@@ -327,10 +328,10 @@ contains
     ! D.Quigley September 2017                                                     !
     !------------------------------------------------------------------------------!    
     implicit none
-    integer,value,intent(in) :: dmol,d,n,dh1,dh2,n2
-    real(kind=dp),intent(in),dimension(d,n) :: pos
+    integer(kind=it),value,intent(in)           :: dmol,d,n,dh1,dh2,n2
+    real(kind=dp),intent(in),dimension(d,n)     :: pos
     real(kind=dp),intent(in),dimension(dh1,dh2) :: hmatrix
-    integer,intent(in),dimension(n2) :: species
+    integer(kind=it),intent(in),dimension(n2)   :: species
     
     integer :: imol
     real(kind=dp) :: loc_energy
@@ -379,12 +380,11 @@ contains
     ! D.Quigley September 2017                                                     !
     !------------------------------------------------------------------------------!    
     implicit none
-    integer,value,intent(in) :: d,n,dh1,dh2,n2
-    real(kind=dp),intent(in),dimension(d,n) :: pos
+    integer(kind=it),value,intent(in)           :: d,n,dh1,dh2,n2
+    real(kind=dp),intent(in),dimension(d,n)     :: pos
     real(kind=dp),intent(in),dimension(dh1,dh2) :: hmatrix
-    integer,intent(in),dimension(n2) :: species
+    integer(kind=it),intent(in),dimension(n2  ) :: species
 
-    integer :: imol
     real(kind=dp) :: loc_energy
 
     ! Sanity checks
@@ -416,7 +416,7 @@ contains
   end function compute_model_energy
 
 
-  real(kind=dp) function compute_model_energy_mi(n,d,pos,dh2,dh1,hmatrix,n2,species) bind(c)
+  real(kind=dp) function compute_model_energy_mi(n,d,pos,dh2,dh1,hmatrix,n2,species) 
     !------------------------------------------------------------------------------!
     ! Computes the energy of the entire simulation cell, using a pair potential.   !
     ! To be used when sampling the energy of the entire system or                  !
@@ -432,21 +432,18 @@ contains
     real(kind=dp),intent(in),dimension(dh1,dh2) :: hmatrix
     integer,intent(in),dimension(n2) :: species
 
-    real(kind=dp) :: La,Lb,Lc,invLa,invLb,invLc
     real(kind=dp),dimension(3)   :: tmpvect,tmpvect2
-    real(kind=dp)                :: r2_ij,invr2_ij
     real(kind=dp)                :: Eij,Ezip,eijk,izc
-    real(kind=dp)                :: tijk,theta,denom
-    real(kind=dp)                :: tbpre,zeta,arg,bij
+    real(kind=dp)                :: tijk,r2_ij,rcsq
+    real(kind=dp)                :: tbpre,zeta,bij
     real(kind=dp)                :: brak,ctheta,deltaZ
-    real(kind=dp)                :: tmpE,rcsq,ir6,ir12
     real(kind=dp)                :: r_ij,r2_ik,r_ik
     real(kind=dp)                :: inv_rij,argf,fcij
     
     real(kind=dp),dimension(3) :: ilj,jlj,klj
 
     integer :: imol,jmol,kmol ! loop counters
-    integer :: ji,ki,ln,ln2,isp,jsp,ksp
+    integer :: ln,ln2,isp,jsp,ksp
 
     real(kind=dp),dimension(3,3) :: recip_matrix
     
@@ -587,7 +584,7 @@ contains
     end do ! end loop over imol
 
     ! Add in constant term which only depends on number of atoms
-    model_energy = Ezip !+ dot_product(nsp,E0)
+    model_energy = Ezip + dot_product(nsp,E0)
     
     compute_model_energy_mi = model_energy
     
@@ -595,9 +592,7 @@ contains
 
   end function compute_model_energy_mi
 
-  
-    
-  real(kind=dp) function compute_local_real_energy_mi(imol,n,d,pos,dh2,dh1,hmatrix,n2,species) bind(c)
+  real(kind=dp) function compute_local_real_energy_mi(imol,n,d,pos,dh2,dh1,hmatrix,n2,species)
     !------------------------------------------------------------------------------!
     ! Calculates the real-space contribution to the energy due particle dmol.      !
     ! To be used when computing the changes in energy due to a trial move.         !
@@ -613,14 +608,12 @@ contains
     integer,intent(in),dimension(n2) :: species
 
     ! local variables
-    real(kind=dp) :: La,Lb,Lc,invLa,invLb,invLc
     real(kind=dp),dimension(3)   :: tmpvect,tmpvect2,tmpvect3
-    real(kind=dp)                :: r2_ij,invr2_ij,bijx
+    real(kind=dp)                :: r2_ij,bijx,rcsq
     real(kind=dp)                :: Eij,Ezip,eijk,izc,Eji
     real(kind=dp)                :: tijk,theta,jzc,jzcx,denom
     real(kind=dp)                :: tbpre,zeta,arg,bij
     real(kind=dp)                :: brak,ctheta,deltaZ
-    real(kind=dp)                :: tmpE,rcsq,ir6,ir12
     real(kind=dp)                :: r_ij,r2_ik,r_ik,r2_jl
     real(kind=dp)                :: r2_jk,r_jk,r_jl
     real(kind=dp)                :: tbpre2,zeta2,zeta3
@@ -630,7 +623,7 @@ contains
     real(kind=dp),dimension(3,3) :: recip_matrix
 
     integer :: jmol,kmol,lmol ! loop counters
-    integer :: ji,ki,ln,ln2,ln3,isp,jsp,ksp,lsp,ti=0
+    integer :: ln,ln2,ln3,isp,jsp,ksp,lsp,ti=0
     
     call util_recipmatrix(hmatrix,recip_matrix)
 
@@ -921,12 +914,11 @@ contains
     
 
     real(kind=dp),dimension(3)   :: tmpvect,tmpvect2
-    real(kind=dp)                :: r2_ij,invr2_ij
     real(kind=dp)                :: Eij,Ezip,eijk,izc
     real(kind=dp)                :: tijk,theta,denom
     real(kind=dp)                :: tbpre,zeta,arg,bij
     real(kind=dp)                :: brak,ctheta,deltaZ
-    real(kind=dp)                :: tmpE,rcsq,ir6,ir12
+    real(kind=dp)                :: rcsq,r2_ij
     real(kind=dp)                :: r_ij,r2_ik,r_ik
     
     real(kind=dp),dimension(3) :: ilj,jlj,klj
@@ -1059,7 +1051,7 @@ contains
     end do ! end loop over imol
 
     ! Add in constant term which only depends on number of atoms
-    model_energy = Ezip !+ dot_product(nsp,E0)
+    model_energy = Ezip + dot_product(nsp,E0)
     
     compute_model_energy_iv = model_energy
     
@@ -1076,13 +1068,10 @@ contains
     ! D.Quigley February 2018                                                     !
     !------------------------------------------------------------------------------!    
     implicit none
-    integer,value,intent(in) :: d,n,dh1,dh2,n2
-    real(kind=dp),intent(in),dimension(d,n) :: pos
+    integer(kind=it),value,intent(in)           :: d,n,dh1,dh2,n2
+    real(kind=dp),intent(in),dimension(d,n)     :: pos
     real(kind=dp),intent(in),dimension(dh1,dh2) :: hmatrix
-    integer,intent(in),dimension(n2) :: species
-
-    integer :: imol
-    real(kind=dp) :: loc_energy
+    integer(kind=it),intent(in),dimension(n2)   :: species
 
     ! Sanity checks
     if (d/=3) stop 'Error in compute_local_real_energy: position array must be 3xn'
@@ -1180,10 +1169,9 @@ contains
     real(kind=dp),dimension(d,n),intent(in) :: pos
     real(kind=dp),dimension(dh1,dh2),intent(in) :: hmatrix
 
-    integer :: imol,jmol,k,ni
+    integer :: imol,jmol,ni
     real(kind=dp) :: r2_ij,rn
-    real(kind=dp) :: La,Lb,Lc,invLa,invLb,invLc
-    real(kind=dp),dimension(3) :: v_ij,ilj,jlj,tmpvect
+    real(kind=dp),dimension(3) :: v_ij,ilj,jlj
 
     real(kind=dp),dimension(3,3) :: recip_matrix
 
@@ -1191,15 +1179,6 @@ contains
 
     ! Hard coded neighbour list cutoff with skin width 
     rn = r_cut + skin
-
-    ! Assume orthorhomic boundary conditions
-!!$    La = sqrt(dot_product(hmatrix(:,1),hmatrix(:,1)))
-!!$    Lb = sqrt(dot_product(hmatrix(:,2),hmatrix(:,2)))
-!!$    Lc = sqrt(dot_product(hmatrix(:,3),hmatrix(:,3)))
-!!$    
-!!$    invLa = 1.0_dp/La
-!!$    invLb = 1.0_dp/Lb
-!!$    invLc = 1.0_dp/Lc
     
     do imol = 1,n
 
@@ -1216,10 +1195,6 @@ contains
           v_ij(:)   = jlj(:) - ilj(:)
 
           call util_images(v_ij,hmatrix,recip_matrix)
-          
-!!$          v_ij(1) = v_ij(1) - La*anint(v_ij(1)*invLa)
-!!$          v_ij(2) = v_ij(2) - Lb*anint(v_ij(2)*invLb)
-!!$          v_ij(3) = v_ij(3) - Lc*anint(v_ij(3)*invLc)
           
           r2_ij = dot_product(v_ij,v_ij)
           
@@ -1248,8 +1223,8 @@ contains
     !------------------------------------------------------------------------------!
     use util, only : Pi
     implicit none
-    integer,intent(in),value       :: ispc, jspc   ! Species types
-    real(kind=dp),intent(in),value :: r            ! Radial separation
+    integer(kind=it),intent(in),value :: ispc, jspc   ! Species types
+    real(kind=dp),intent(in),value    :: r            ! Radial separation
     real(kind=dp) :: Rcut,Scut
     
     Scut = zipS(ispc,jspc)
@@ -1272,15 +1247,15 @@ contains
 
   real(kind=dp) function fs(ispc,zi) bind(c)
     !------------------------------------------------------------------------------!
-    ! Implments the function fs of Zipoli et al equation (10) which computers a    !
+    ! Implments the function fs of Zipoli et al equation (10) which computes a     !
     ! species-specific deviation from ideal coordination.                          !
     !------------------------------------------------------------------------------!
     ! D.Quigley February 2018                                                      !
     !------------------------------------------------------------------------------!
     use util, only : Pi
     implicit none
-    integer,intent(in),value :: ispc        ! Species type
-    real(kind=dp),intent(in),value :: zi    ! Coordination number
+    integer(kind=it),intent(in),value :: ispc   ! Species type
+    real(kind=dp),intent(in),value :: zi        ! Coordination number
 
     real(kind=dp) :: z,zd,zint
     
@@ -1288,14 +1263,11 @@ contains
     zint = int(zd,kind=dp)
     z = zd - zint
 
-    ! This is how the function is defined in Zipoli et al, but raises several
-    ! questions since zT and zB are both 0.5 and z can never be less than one
-    ! or greater than zero. Plot and compare to figure 1...
     if ( z <= zT - zB ) then
        fs = zint
     elseif ( z <= zT + zB ) then
-       !fs = sign(zint + 0.5_dp*(1.0_dp+sin(0.5_dp*Pi*(z-zT)/zB)),zi-z0(ispc))
-       fs = zint + 0.5_dp*(1.0_dp+sin(0.5_dp*Pi*(z-zT)/zB))
+       fs = sign(zint + 0.5_dp*(1.0_dp+sin(0.5_dp*Pi*(z-zT)/zB)),zi-z0(ispc))
+       !fs = zint + 0.5_dp*(1.0_dp+sin(0.5_dp*Pi*(z-zT)/zB))
     else
        fs = 1.0_dp
     end if
@@ -1314,8 +1286,8 @@ contains
     use util, only : Pi
     implicit none
 
-    real(kind=dp),intent(in),value :: ctheta
-    integer,intent(in),value :: isp, jsp, ksp
+    real(kind=dp),intent(in),value    :: ctheta
+    integer(kind=it),intent(in),value :: isp, jsp, ksp
     real(kind=dp) :: arg,denom,theta
     
     ! Modified form of angle function - eq (11) of Zipoli paper
@@ -1337,12 +1309,11 @@ contains
     !------------------------------------------------------------------------------!
     ! D.Quigley February 2018                                                      !
     !------------------------------------------------------------------------------!
-    use util, only : Pi
     implicit none
 
-    real(kind=dp),intent(in),value :: ctheta
-    integer,intent(in),value :: isp, jsp, ksp
-    integer :: ic,iord,jk
+    real(kind=dp),intent(in),value    :: ctheta
+    integer(kind=it),intent(in),value :: isp, jsp, ksp
+    integer :: ic,jk
 
     real(kind=dp),dimension(0:7,0:2,0:1) :: coeff
 
