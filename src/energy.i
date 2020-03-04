@@ -9,7 +9,9 @@ Zipoli and Curioni, New J. Phys. 15, 123006 (2013)."
 /* energy.i */
 /* N.B. Implementing module docstring using the method described 
 at http://swig.org/Doc1.3/Python.html#Python_nn66 stops distutils
-from recognising the module name.... */
+from recognising the module name.... 
+%module(docstrig=DOCSTRING) energy
+*/
 %module energy
 %{
 #define SWIG_FILE_WITH_INIT
@@ -36,7 +38,35 @@ from recognising the module name.... */
 /* Species array */
 %apply (int DIM1, int* IN_ARRAY1) {(int n2, int* species)};
 
-%feature("docstring", "This is a docstring for compute_neighbour_list()") compute_neighbour_list;
+/* Docstring information for compute_neighbour_list */
+%feature("autodoc", "compute_neighbour_list(positions, cellmatrix, species)") compute_neighbour_list;
+%define cpt_nl_string
+"
+    Updates the internal list of atoms that lie within (cutoff+skin) of each atom. 
+
+    This function should be called whenever atoms may have moved by a sufficient 
+    distance than any previous neighbour list will no longer be valid. The cutoff
+    distance defined by the model potential is species pair dependent. The skin
+    width is fixed at 1.0 Angstrom.
+
+    Parameters
+    ----------
+
+    positions  : Numpy array of size (N, 3). Compatible with the positions attribute
+                 of an ASE atoms object. Holds atomic position vectors.
+
+    cellmatrix : Numpy array of size (3,3). Holds the 3 vectors defining the 
+                 parallelepiped simulation cell. Compatible with the cell attribute
+                 of an ASE atoms object.
+
+    species    : List of N atoms species types defined using the constants GE=0, TE=1. 
+
+
+"
+%enddef
+%feature("docstring", cpt_nl_string) compute_neighbour_list;
+
+
 
 
 /* This will be parsed to generate the wrapper */
