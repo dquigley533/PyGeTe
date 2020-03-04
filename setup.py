@@ -1,26 +1,24 @@
 import os
-from setuptools import setup
-
-def read(fname):
-    return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 def configuration():
 
     from numpy.distutils.misc_util import Configuration
+    import numpy
 
     config = Configuration('PyGeTe', parent_name=None, top_path=None)
 
-    zipoli_src = ['src/util.f90','src/energy.f90']
-    config.add_library('zipoli', sources=zipoli_src)
-
-    sources  = ['src/energy.i']
-    includes = ['include/energy.h']
+    energy_src = ['src/util.f90','src/energy.f90']
+    config.add_library('energy', sources=energy_src)
 
     config.add_extension('_energy',
-        sources = sources,
-        libraries = ['zipoli'],
-        include_dirs = ['include'],
-        depends = [sources, includes])
+        sources = ['src/energy.i'],
+        libraries = ['energy'],
+        include_dirs = ['include', numpy.get_include()],
+        depends = ['src/energy.i', 'include/energy.h'],
+        extra_compile_args = ['-std=f2003'],
+    )
+
+    config.version = "0.1.1"
 
     return config
 

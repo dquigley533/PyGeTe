@@ -29,4 +29,4 @@ total_energy = en.compute_model_energy(betaGeTe.positions,
                                        betaGeTe.get_cell(), betaGeTeSpecies)
 
 
-print "Energy per atom = %.3f eV" %(total_energy/betaGeTe.get_number_of_atoms())
+print("Energy per atom = %.3f eV" %(total_energy/betaGeTe.get_number_of_atoms()))
