@@ -1,4 +1,7 @@
-import os
+###########################
+# Setup script for PyGeTe #
+###########################
+#!/usr/bin/env python
 
 def configuration():
 
@@ -13,9 +16,8 @@ def configuration():
     config.add_extension('_energy',
         sources = ['src/energy.i'],
         libraries = ['energy'],
-        include_dirs = ['include', numpy.get_include()],
-        depends = ['src/energy.i', 'include/energy.h'],
-        extra_compile_args = ['-std=f2003'],
+        include_dirs = ['include'],
+        depends = ['src/energy.i']
     )
 
     config.version = "0.1.1"
