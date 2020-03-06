@@ -29,6 +29,6 @@ total_energy = en.compute_model_energy(atomsGeTe.positions,
                           atomsGeTe.get_cell(), speciesGeTe)
                 
 
-print("Energy per atom of initial structure = %.3f eV" %(total_energy/atomsGeTe.get_number_of_atoms()))
+print("Energy per atom of initial structure = %.3f eV" %(total_energy/atomsGeTe.get_global_number_of_atoms()))
 
 
