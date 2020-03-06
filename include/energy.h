@@ -1,9 +1,8 @@
 /* Header file for C-compatible variables/functions in energy.F90 */
 
-int natoms;          /* Number of atoms - set on first call to either function below        */
-double model_energy; /* Total energy of the system of particles as most recently calculated */
-double skin;         /* Verlet neighbour list skin width                                    */
-double lj_lrc;       /* Invariant part of long range tail correction (missing N*N/volume)   */
+extern int natoms;          /* Number of atoms - set on first call to either function below        */
+extern double model_energy; /* Total energy of the system of particles as most recently calculated */
+extern double skin;         /* Verlet neighbour list skin width                                    */
 
 /* Calculates the total energy of the system of particles */
 double compute_model_energy(int n, int d, double *pos, int dh2, int dh1, double *hmatrix, int n2, int *species);
