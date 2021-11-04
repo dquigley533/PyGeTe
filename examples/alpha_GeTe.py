@@ -1,7 +1,6 @@
 import numpy as np
 import ase.spacegroup as spg
-import PyGeTe.energy as en
-from PyGeTe import symdict
+import PyGeTe as en
 
 ############################################
 # Create the alpha GeTe structure with ASE #
@@ -18,7 +17,7 @@ atomsGeTe = spg.crystal(["Ge", "Te"], [(0.0, 0.0, 0.763), (0.0, 0.0, 0.237)],
 ###########################################
 
 # Set species
-speciesGeTe = [symdict[s] for s in atomsGeTe.get_chemical_symbols()]
+speciesGeTe = [en.symdict[s] for s in atomsGeTe.get_chemical_symbols()]
 
 # Make sure initial neighbour list is up to date
 en.compute_neighbour_list(atomsGeTe.positions, 

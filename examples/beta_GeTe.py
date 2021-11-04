@@ -1,7 +1,6 @@
 import numpy as np
 import ase.spacegroup as spg
-import PyGeTe.energy as en
-from PyGeTe import symdict
+import PyGeTe as en
 
 ###########################################
 # Create the beta GeTe structure with ASE #
@@ -18,7 +17,7 @@ betaGeTe = spg.crystal(["Ge", "Te"], [(0.0, 0.0, 0.0), (0.5, 0.5, 0.5)],
 ###########################################
 
 # Set species
-betaGeTeSpecies = [symdict[s] for s in betaGeTe.get_chemical_symbols()]
+betaGeTeSpecies = [en.symdict[s] for s in betaGeTe.get_chemical_symbols()]
 
 # Make sure initial neighbour list is up to date
 en.compute_neighbour_list(betaGeTe.positions, 
