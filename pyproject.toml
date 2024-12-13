@@ -1,0 +1,12 @@
+[build-system]
+build-backend = 'mesonpy'
+requires = ['meson-python']
+
+
+[project]
+name = 'PyGeTe'
+dynamic = ["version"]
+dependencies = [
+	     "numpy<2.0.0",
+	     "ASE",
+]
