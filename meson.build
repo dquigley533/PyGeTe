@@ -1,3 +1,6 @@
+# meson.build for PyGeTe
+# D. Quigley - University of Warwick
+
 project(
 	'PyGeTe',         # The name of the project
 	['fortran', 'c'], # The languages that Meson should initialize
@@ -9,7 +12,6 @@ project(
 
 # List of options to pass to fortran compiler
 # add_project_arguments(['-fbacktrace', '-fbounds-check'], language:'fortran') 
-
 
 # Use swig to generate wrapper code
 swig = find_program('swig')
@@ -35,10 +37,9 @@ py.extension_module(
   [energy_src, wrapper_code],
   install: true,
   include_directories : incdir,
-#  subdir : 'PyGeTe',
 )
 
-# Finall define and install python sources
+# Finally define and install python sources
 python_sources = [
   '__init__.py',
 ]
