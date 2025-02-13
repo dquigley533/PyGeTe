@@ -15,6 +15,23 @@ project(
 
 # Use swig to generate wrapper code
 swig = find_program('swig')
+
+# Need Python headers to compile the wrapper code
+pydep = dependency('python3', version : '>=3.0.0')
+
+
+py = import('python').find_installation(pure: false)
+
+# NumPy include directory - needed in all submodules
+incdir_numpy = run_command(py,
+  [
+    '-c',
+    'import numpy; print(numpy.get_include())'
+  ],
+  check: false
+).stdout().strip()
+
+# List of include directories
 incdir = include_directories('include')
 
 wrapper_code = custom_target('wrapper_code',
@@ -22,11 +39,6 @@ wrapper_code = custom_target('wrapper_code',
 	     output : ['energy_wrap.c', 'energy.py'],
 	     command : [swig, '-python', '-I../include/', '-outcurrentdir', '@INPUT@'],
 	     )
-
-# Need Python headers to compile the wrapper code
-pydep = dependency('python3', version : '>=3.0.0')
-
-py = import('python').find_installation(pure: false)
 
 # Source files for fortran library
 energy_src = ['src/util.f90','src/energy.f90']
@@ -36,7 +48,7 @@ py.extension_module(
   '_energy',
   [energy_src, wrapper_code],
   install: true,
-  include_directories : incdir,
+  include_directories : [incdir, incdir_numpy],
 )
 
 # Finally define and install python sources
