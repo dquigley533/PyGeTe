@@ -49,6 +49,7 @@ py.extension_module(
   [energy_src, wrapper_code],
   install: true,
   include_directories : [incdir, incdir_numpy],
+  subdir: 'PyGeTe',
 )
 
 # Finally define and install python sources

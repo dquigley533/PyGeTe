@@ -11,4 +11,4 @@ TE = 1
 
 symdict = {"Ge":GE, "Te":TE}
 
-from _energy import *
+from ._energy import *
